@@ -1,5 +1,5 @@
-//const { default: axios } = require("axios");
-
+//const axios = require("axios");
+//import axios from "axios";
 async function sprintChallenge5() { // Note the async keyword, in case you wish to use `await` inside sprintChallenge5
   // 👇 WORK WORK BELOW THIS LINE 👇
   
@@ -48,82 +48,70 @@ async function sprintChallenge5() { // Note the async keyword, in case you wish 
     const mentorsResponse = await axios.get('http://localhost:3003/api/mentors');
     const mentors = mentorsResponse.data;
 
-    // Combined the learners and the mentors to foem an array
-    const combinedData = combinedDataFunction(learners, mentors);
+    const formattedData = []
+    const info = document.querySelector('.info');
+    info.textContent = 'No learner is selected';
 
-    // Loop over the combined data and create div element
-    combinedData.forEach(learner => {
-      const card = createCardElement(learner);
-      document.querySelector('.cards').appendChild(card);
-    });
-    
-    // Fuction to combine learners and mentors data
-    function combinedDataFunction(learners, mentors) {
-      
-      return learners.map(learner => {
-        const mentorArray = [];
-        learner.mentors.forEach(mentor => {
-          mentors.forEach(mnt => {
-            if (mentor === mnt.id ) {
-              mentorArray.push(mnt.firstName + ' ' + mnt.lastName)
-            }
-          })
+    learners.forEach(learner => {
+      const result = {
+        ...learner,
+        mentors: learners.mentors.map(mID => {
+          const mentor = mentors.find (mentorObj => mentorObj.id == mID)
+          return mentor.firstName + " " + mentor.lastName
         })
-        return {
-          id: learner.id,
-        email: learner.email,
-        fullName: learner.fullName,
-        mentors: mentorArray };
-      });
-    }
-    console.log(combinedData)
+      }
+      formattedData.push(result)
+    })
 
-    // Function to create a div.card element for a learner
-    function createCardElement(learner) {
+    formattedData.forEach(learner => {
       const card = document.createElement('div');
       card.classList.add('card');
+      const name = document.createElement('h3')
+      const email = document.createElement('div')
+      const mentors = document.createElement('h4')
+      const mentorsHTML = document.createElement('ul')
 
-      const mentorsList = learner.mentors.map(mentor => `<li>${mentor}</li>`).join('');
-      const mentorsHTML = `<ul>${mentorsList}</ul>`;
 
-      card.innerHTML = `
-      <h3>${learner.fullName} (ID: ${learner.id})</h3>
-      <p>Email: ${learner.email}</p>
-      <h4 class="closed">Mentors</h4>
-      ${mentorsHTML}
-    `;
+      card.appendChild(name);
+      card.appendChild(email)
+      card.appendChild(mentors);
+      card.appendChild(mentorsHTML);
 
+      learner.mentors.forEach(mentorsName => {
+        const li = document.createElement('li');
+        li.textContent = mentorsName;
+        mentorsHTML.appendChild(li);
+      })
+      
+      card.classList.add('card');
+      mentors.classList.add('closed');
+      name.textContent = learner.fullName;
+      email.textContent = learner.email;
+      mentors.textContent = 'Mentors';
+
+      document.querySelector('.card').appendChild(card)
       card.addEventListener('click', () => {
-        const info = document.querySelector('.info');
-        const selectedCards = document.querySelectorAll('.card.selected');
+        
+        //const selectedCards = document.querySelectorAll('.card.selected');
 
         if (!card.classList.contains('selected')) {
-          selectedCards.forEach(selectedCard => selectedCard.classList.remove('selected'));
+          //selectedCards.forEach(selectedCard => selectedCard.classList.remove('selected'));
+          document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'))
           card.classList.add('selected');
-          info.textContent = `Selected learner: ${learner.fullName} (ID: ${learner.id})`;
+          info.textContent = `The selected learner is ${learner.fullName} `;
         } else {
+          
+          info.textContent = 'No learner is selected';
           card.classList.remove('selected');
-          info.textContent = '';
         }
 
-        const mentorsList = card.querySelector('ul');
-        const mentorsHeader = card.querySelector('h4');
-
-        if (mentorsList.classList.contains('collapsed')) {
-          mentorsList.classList.remove('collapsed');
-          mentorsHeader.classList.remove('closed');
-          mentorsHeader.classList.add('open');
-        } else {
-          mentorsList.classList.add('collapsed');
-          mentorsHeader.classList.add('closed');
-          mentorsHeader.classList.remove('open');
-        }
+        
       })
 
-      return card;
-    }
+    } 
+  )}
   // 👆 WORK WORK ABOVE THIS LINE 👆
-}
+    
 
 // ❗ DO NOT CHANGE THE CODE  BELOW
 if (typeof module !== 'undefined' && module.exports) module.exports = { sprintChallenge5 }

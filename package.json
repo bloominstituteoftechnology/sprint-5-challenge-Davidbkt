@@ -1,4 +1,5 @@
 {
+  "type": "module",
   "name": "w_s5_challenge",
   "version": "1.0.0",
   "scripts": {
